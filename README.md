@@ -2,7 +2,7 @@
 
 Phylogenetics with the Wolfram Language.
 
-Related post at Mathematica.StackExchange: How to work with phylogenetic trees?
+Related post at Mathematica.StackExchange: How to work with phylogenetic trees? http://mathematica.stackexchange.com/q/126496/89
 
 ## Sources
 
