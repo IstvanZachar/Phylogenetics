@@ -20,7 +20,7 @@
 
 
 (* ::Input::Initialization:: *)
-(*Get["Phylogenetics`Common`"];*)
+Get["Phylogenetics`Common`"];
 Get["Phylogenetics`Tree`"];
 Get["Phylogenetics`Conversion`"];
 Get["Phylogenetics`PhylogeneticData`"];
