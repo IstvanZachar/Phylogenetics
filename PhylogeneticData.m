@@ -23,17 +23,14 @@
 (* :Title: Phylogenetic tree data *)
 (* :Context: Phylogenetics` *)
 (* :Author: Istv\[AAcute]n Zachar *)
+(* :Email: istvan.zachar80@gmail.com *)
 (* :Summary: Example phylogenetic trees of various formats. *)
-(* :Copyright: Copyright 2016, Istv\[AAcute]n Zachar *)
-(* :Package Version: 1.0 *)
+(* :Copyright: Copyright 2016-2017, Istv\[AAcute]n Zachar *)
+(* :Package Version: 1.1 *)
 (* :Mathematica Version: 11.0.0.0 *)
 (* :Sources: *)
 (* :Keywords: *)
 (*     Newick format, hierarchical clustering, cluster, Tree structure *)
-
-(* :History: *)
-(*     2016 09 08 - INITIALIZED: Package initialized. *)
-(*     2016 09 16 - PUBLISHED: Package first published. *)
 
 
 
@@ -57,7 +54,7 @@ PhylogeneticData[name_]:=phyloData@name;
 
 phyloData=<|
 
-"ExampleNewick"->"(A:0.1,B:0.2,((G:.1,H:0.2,I:0.3)C:0.3,D:0.4):0.5)F;",
+"ExampleNewick"->"(A:0.1,B:0.2,((G:.1,H:0.2,I:0.3)C:0.3,D:0.4)E:0.5)F;",
 "ExampleNewick1"->"(A:0.1,B:0.2,(C:0.3,D:0.4)E:0.5)F;",
 "ExampleNewick2"->"(A:0.1,B:0.2,(C:0.3,D:,:.7)E:0.5)F;",
 "ExampleNewick3"->"(A:0.1,B:0.2,(C:0.3,D:.5,H:.7,G)E:0.5)F:0;",

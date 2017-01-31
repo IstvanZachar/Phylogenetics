@@ -23,16 +23,13 @@
 (* :Title: Phylogenetic common functions *)
 (* :Context: Phylogenetics` *)
 (* :Author: Istv\[AAcute]n Zachar *)
+(* :Email: istvan.zachar80@gmail.com *)
 (* :Summary: Function declarations. *)
-(* :Copyright: Copyright 2016, Istv\[AAcute]n Zachar *)
-(* :Package Version: 1.0 *)
+(* :Copyright: Copyright 2016-2017, Istv\[AAcute]n Zachar *)
+(* :Package Version: 1.1 *)
 (* :Mathematica Version: 11.0.0.0 *)
 (* :Sources: *)
 (* :Keywords: *)
-
-(* :History: *)
-(*     2016 09 16 - INITIALIZED: Package initialized. *)
-(*     2016 09 16 - PUBLISHED: Package first published. *)
 
 
 
@@ -40,18 +37,36 @@
 BeginPackage["Phylogenetics`"];
 
 
+$PhylogeneticsVersionNumber=1.1;
+
 (* Declarations *)
-{UniqueVerticesQ,TreeToGraph,Tree,Cladogram}; (* NOTE: Pre-declare these so that subpackages could use them. *)
+{Leaf,Node,UniqueVerticesQ,TreeToGraph,Tree,Cladogram}; (* NOTE: Pre-declare these so that subpackages could use them. *)
 
 
 Begin["`Private`"];
 
 
 (* ::Input::Initialization:: *)
+General::incomp="Some functions in the Phylogenetics` package are not compatible with \!\(\*
+StyleBox[\"Mathematica\",\nFontSlant->\"Italic\"]\) versions predating 10.0.";
+Which[
+$VersionNumber<10,Message[General::incomp],
+$VersionNumber<10.1,Quiet@{
+MissingQ[expr_]:=MatchQ[expr,_Missing];
+MinMax[expr_]:={Min@expr,Max@expr};
+Subdivide[min_:0,max_:1,d_]:=min+(max-min) Range[0,d]/d;
+},
+$VersionNumber<10.2,Quiet@{
+MissingQ[expr_]:=MatchQ[expr,_Missing];
+}
+];
+
+
+(* ::Input::Initialization:: *)
 mergeRules[opts__]:=Module[{flat=Flatten@{opts},new,old,ord},
 new=DeleteDuplicates[First/@flat];
 old=DeleteDuplicates[Reverse@flat,(First@#1===First@#2)&];
-ord=First/@(new/.PositionIndex[First/@old]); (* Same as Reordering[First/@old, new] *)
+ord=First/@(new/.PositionIndex[First/@old]);
 old[[ord]]
 ];
 
@@ -59,6 +74,6 @@ old[[ord]]
 (* ::Input::Initialization:: *)
 End[];
 
-Protect[];
+Protect[$PhylogeneticsVersionNumber];
 
 EndPackage[];

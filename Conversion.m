@@ -23,9 +23,10 @@
 (* :Title: Convert phylogenetic trees *)
 (* :Context: Phylogenetics` *)
 (* :Author: Istv\[AAcute]n Zachar *)
+(* :Email: istvan.zachar80@gmail.com *)
 (* :Summary: Parsing and converting phylogenetic trees of various formats. *)
-(* :Copyright: Copyright 2016, Istv\[AAcute]n Zachar *)
-(* :Package Version: 1.0 *)
+(* :Copyright: Copyright 2016-2017, Istv\[AAcute]n Zachar *)
+(* :Package Version: 1.1 *)
 (* :Mathematica Version: 11.0.0.0 *)
 (* :Sources: *)
 (*  - The Newick Standard: http://evolution.genetics.washington.edu/phylip/newicktree.html *)
@@ -34,10 +35,6 @@
 (*  - An online Newick tree visualizer: http://etetoolkit.org/treeview/ *)
 (* :Keywords: *)
 (*     Newick format, hierarchical clustering, cluster, parsing *)
-
-(* :History: *)
-(*     2016 09 08 - INITIALIZED: Package initialized. *)
-(*     2016 09 16 - PUBLISHED: Package first published. *)
 
 
 
@@ -63,8 +60,8 @@ TreeToNewick::usage="TreeToNewick[\!\(\*
 StyleBox[\"tree\",\nFontSlant->\"Italic\"]\)] converts the Tree object \!\(\*
 StyleBox[\"tree\",\nFontSlant->\"Italic\"]\) to Newick format, i.e. to a linear string of parenthesis notation. TreeToNewick has attribute Listable.";
 
-Node::usage="Node is an inert wrapper that is used only for parsing a Newick tree.";
-Leaf::usage="Leaf is an inert wrapper that is used only for parsing a Newick tree.";
+Node::usage="Node is a symbol used to indicate an internal node within the vertex association of Tree.";
+Leaf::usage="Leaf is a symbol used to indicate a leaf node within the vertex association of Tree.";
 
 
 ClusterToTree::usage="ClusterToTree[\!\(\*
@@ -117,7 +114,7 @@ tree/.(n:Node|Leaf)[p_Rule]:>Block[{lbl=If[Head@p===Rule,First@p,p]},
 "Name"->If[lbl===None||MemberQ[labels,lbl],c++,AppendTo[labels,lbl];lbl],
 "Label"->lbl,
 "BranchLength"->If[Head@p===Rule,Last@p,1],
-"Type"->(n/.{Leaf->"Leaf",Node->"Node"})
+"Type"->n
 |>
 ]];
 
@@ -136,14 +133,14 @@ Tree[p_->z_,s_]:>Tree[(
 <|
 "Name"->If[p===None||MemberQ[labels,p],c++,AppendTo[labels,p];p],
 "Label"->None,
-"Type"->"Node",
+"Type"->Node,
 "BranchLength"->z
 |>
 ),s]/.Rule[p_,z_]:>(
 <|
 "Name"->If[p===None||MemberQ[labels,p],c++,AppendTo[labels,p];p],
 "Label"->p,
-"Type"->"Leaf",
+"Type"->Leaf,
 "BranchLength"->z
 |>
 )];
@@ -183,14 +180,14 @@ rep[node_]:=Module[{sub=Pick[n,gd@node,1]},If[sub==={},
 "Name"->node,
 "Label"->(Switch[#,"Index",VertexIndex[g,node],"Name",node,_,#]&@PropertyValue[{g,node},VertexLabels]),
 "BranchLength"->Lookup[bl,node,1],
-"Type"->"Leaf"
+"Type"->Leaf
 |>,
 Tree[
 <|
 "Name"->node,
 "Label"->(Switch[#,"Index",VertexIndex[g,node],"Name",node,_,#]&@PropertyValue[{g,node},VertexLabels]),
 "BranchLength"->Lookup[bl,node,1],
-"Type"->"Node"
+"Type"->Node
 |>,
 rep/@sub]
 ]];

@@ -23,24 +23,22 @@
 (* :Title: Phylogenetic functions *)
 (* :Context: Phylogenetics` *)
 (* :Author: Istv\[AAcute]n Zachar *)
+(* :Email: istvan.zachar80@gmail.com *)
 (* :Summary: Parsing, converting, displaying and managing phylogenetic tree structures. *)
-(* :Copyright: Copyright 2016, Istv\[AAcute]n Zachar *)
-(* :Package Version: 1.0 *)
+(* :Copyright: Copyright 2016-2017, Istv\[AAcute]n Zachar *)
+(* :Package Version: 1.1 *)
 (* :Mathematica Version: 11.0.0.0 *)
 (* :Sources: *)
 (* :Keywords: *)
 (*     phylogeny, cladogram, dendrogram, tree, polytomy *)
-
-(* :History: *)
-(*     2016 09 08 - INITIALIZED: Package initialized. *)
-(*     2016 09 16 - PUBLISHED: Package first published. *)
 
 
 
 (* ::Input::Initialization:: *)
 BeginPackage["Phylogenetics`"];
 
-Tree::usage="Tree[\[Ellipsis]] is an inert wrapper of a hierarchical, phylogenetic tree specification. Graph functions that also work on Tree objects are: EdgeList, VertexList, TopologicalSort.";
+
+Tree::usage="Tree[\[Ellipsis]] is an inert wrapper of a hierarchical, phylogenetic tree specification. Built-in Graph functions that work on Tree objects are: VertexQ, EdgeList, VertexList, TopologicalSort.";
 
 TreeQ::usage="TreeQ[\!\(\*
 StyleBox[\"expr\",\nFontSlant->\"Italic\"]\)] returns True if expression expr is a tree object with head Tree.";
@@ -49,13 +47,19 @@ StyleBox[\"tree\",\nFontSlant->\"Italic\"]\), \!\(\*
 StyleBox[\"v\",\nFontSlant->\"Italic\"]\)] returns True if \!\(\*
 StyleBox[\"v\",\nFontSlant->\"Italic\"]\) is a valid node vertex within \!\(\*
 StyleBox[\"tree\",\nFontSlant->\"Italic\"]\)\!\(\*
-StyleBox[\".\",\nFontSlant->\"Italic\"]\)";
+StyleBox[\".\",\nFontSlant->\"Italic\"]\)\!\(\*
+StyleBox[\" \",\nFontSlant->\"Italic\"]\)NodeQ[\!\(\*
+StyleBox[\"assoc\",\nFontSlant->\"Italic\"]\)] returns True if association \!\(\*
+StyleBox[\"assoc\",\nFontSlant->\"Italic\"]\) represents an internal node vertex.";
 LeafQ::usage="LeafQ[\!\(\*
 StyleBox[\"tree\",\nFontSlant->\"Italic\"]\), \!\(\*
 StyleBox[\"v\",\nFontSlant->\"Italic\"]\)] returns True if \!\(\*
 StyleBox[\"v\",\nFontSlant->\"Italic\"]\) is a valid leaf vertex within \!\(\*
 StyleBox[\"tree\",\nFontSlant->\"Italic\"]\)\!\(\*
-StyleBox[\".\",\nFontSlant->\"Italic\"]\)";
+StyleBox[\".\",\nFontSlant->\"Italic\"]\)\!\(\*
+StyleBox[\" \",\nFontSlant->\"Italic\"]\)LeafQ[\!\(\*
+StyleBox[\"assoc\",\nFontSlant->\"Italic\"]\)] returns True if association \!\(\*
+StyleBox[\"assoc\",\nFontSlant->\"Italic\"]\) represents a leaf node vertex.";
 UniqueVerticesQ::usage="UniqueVerticesQ[\!\(\*
 StyleBox[\"tree\",\nFontSlant->\"Italic\"]\)] returns True if the \!\(\*
 StyleBox[\"tree\",\nFontSlant->\"Italic\"]\) has a uniquely named set of vertices and False otherwise.";
@@ -66,23 +70,36 @@ StyleBox[\"tree\",\nFontSlant->\"Italic\"]\) split exactly to two, False otherwi
 DistanceIndex::usage="DistanceIndex[\!\(\*
 StyleBox[\"tree\",\nFontSlant->\"Italic\"]\)] returns the absolute distance \!\(\*
 StyleBox[SubscriptBox[\"d\", \"i\"],\nFontSlant->\"Italic\"]\) of each vertex \!\(\*
-StyleBox[SubscriptBox[\"v\", \"i\"],\nFontSlant->\"Italic\"]\) from the implicit root at 0 distance as <|\!\(\*SubscriptBox[
+StyleBox[SubscriptBox[\"v\", \"i\"],\nFontSlant->\"Italic\"]\) in \!\(\*
+StyleBox[\"tree\",\nFontSlant->\"Italic\"]\) from the implicit root at 0 distance as <|\!\(\*SubscriptBox[
 StyleBox[\"v\",\nFontSlant->\"Italic\"], \(1\)]\) \[Rule] \!\(\*SubscriptBox[
 StyleBox[\"d\",\nFontSlant->\"Italic\"], \(1\)]\), \!\(\*SubscriptBox[
 StyleBox[\"v\",\nFontSlant->\"Italic\"], \(2\)]\) \[Rule] \!\(\*SubscriptBox[
 StyleBox[\"d\",\nFontSlant->\"Italic\"], \(2\)]\), \[Ellipsis]|>.";
-SubnodeIndex::usage="SubnodeIndex[\!\(\*
+DescendantIndex::usage="DescendantIndex[\!\(\*
 StyleBox[\"tree\",\nFontSlant->\"Italic\"]\)] returns the list of all vertices \!\(\*
 StyleBox[SubscriptBox[\"s\", \"i\"],\nFontSlant->\"Italic\"]\) below each vertex \!\(\*
-StyleBox[SubscriptBox[\"n\", \"i\"],\nFontSlant->\"Italic\"]\) as <|\!\(\*SubscriptBox[
+StyleBox[SubscriptBox[\"v\", \"i\"],\nFontSlant->\"Italic\"]\) in \!\(\*
+StyleBox[\"tree\",\nFontSlant->\"Italic\"]\) as <|\!\(\*SubscriptBox[
 StyleBox[\"v\",\nFontSlant->\"Italic\"], \(1\)]\) \[Rule] \!\(\*SubscriptBox[
 StyleBox[\"s\",\nFontSlant->\"Italic\"], \(1\)]\), \!\(\*SubscriptBox[
 StyleBox[\"v\",\nFontSlant->\"Italic\"], \(2\)]\) \[Rule] \!\(\*SubscriptBox[
 StyleBox[\"s\",\nFontSlant->\"Italic\"], \(2\)]\), \[Ellipsis]|>.";
+AncestorIndex::usage="AncestorIndex[\!\(\*
+StyleBox[\"tree\",\nFontSlant->\"Italic\"]\)] returns the list of all vertices \!\(\*
+StyleBox[SubscriptBox[\"a\", \"i\"],\nFontSlant->\"Italic\"]\) being ancestral to each vertex \!\(\*
+StyleBox[SubscriptBox[\"v\", \"i\"],\nFontSlant->\"Italic\"]\) in \!\(\*
+StyleBox[\"tree\",\nFontSlant->\"Italic\"]\) as <|\!\(\*SubscriptBox[
+StyleBox[\"v\",\nFontSlant->\"Italic\"], \(1\)]\) \[Rule] \!\(\*SubscriptBox[
+StyleBox[\"a\",\nFontSlant->\"Italic\"], \(1\)]\), \!\(\*SubscriptBox[
+StyleBox[\"v\",\nFontSlant->\"Italic\"], \(2\)]\) \[Rule] \!\(\*SubscriptBox[
+StyleBox[\"a\",\nFontSlant->\"Italic\"], \(2\)]\), \[Ellipsis]|>.";
 ChildIndex::usage="ChildIndex[\!\(\*
 StyleBox[\"tree\",\nFontSlant->\"Italic\"]\)] returns the list of immediate vertices \!\(\*
-StyleBox[SubscriptBox[\"c\", \"i\"],\nFontSlant->\"Italic\"]\) below each vertex \!\(\*SubscriptBox[\(v\), 
-StyleBox[\"i\",\nFontSlant->\"Italic\"]]\) as <|\!\(\*SubscriptBox[
+StyleBox[SubscriptBox[\"c\", \"i\"],\nFontSlant->\"Italic\"]\) below each vertex \!\(\*
+StyleBox[SubscriptBox[\"v\", 
+StyleBox[\"i\",\nFontSlant->\"Italic\"]],\nFontSlant->\"Italic\"]\) in \!\(\*
+StyleBox[\"tree\",\nFontSlant->\"Italic\"]\) as <|\!\(\*SubscriptBox[
 StyleBox[\"v\",\nFontSlant->\"Italic\"], \(1\)]\) \[Rule] \!\(\*SubscriptBox[
 StyleBox[\"c\",\nFontSlant->\"Italic\"], \(1\)]\), \!\(\*SubscriptBox[
 StyleBox[\"v\",\nFontSlant->\"Italic\"], \(2\)]\) \[Rule] \!\(\*SubscriptBox[
@@ -90,7 +107,8 @@ StyleBox[\"c\",\nFontSlant->\"Italic\"], \(2\)]\), \[Ellipsis]|>.";
 BranchLengthIndex::usage="BranchLengthIndex[\!\(\*
 StyleBox[\"tree\",\nFontSlant->\"Italic\"]\)] returns the relative distance \!\(\*
 StyleBox[SubscriptBox[\"r\", \"i\"],\nFontSlant->\"Italic\"]\) of each vertex \!\(\*
-StyleBox[SubscriptBox[\"v\", \"i\"],\nFontSlant->\"Italic\"]\) measured from its parent vertex as <|\!\(\*SubscriptBox[
+StyleBox[SubscriptBox[\"v\", \"i\"],\nFontSlant->\"Italic\"]\) in \!\(\*
+StyleBox[\"tree\",\nFontSlant->\"Italic\"]\) measured from its parent vertex as <|\!\(\*SubscriptBox[
 StyleBox[\"v\",\nFontSlant->\"Italic\"], \(1\)]\) \[Rule] \!\(\*SubscriptBox[
 StyleBox[\"r\",\nFontSlant->\"Italic\"], \(1\)]\), \!\(\*SubscriptBox[
 StyleBox[\"v\",\nFontSlant->\"Italic\"], \(2\)]\) \[Rule] \!\(\*SubscriptBox[
@@ -108,6 +126,9 @@ StyleBox[\"tree\",\nFontSlant->\"Italic\"]\).";
 TreeRoot::usage="TreeRoot[\!\(\*
 StyleBox[\"tree\",\nFontSlant->\"Italic\"]\)] returns the first explicit vertex in \!\(\*
 StyleBox[\"tree\",\nFontSlant->\"Italic\"]\). The root can have a distance defined from an implicit node not specified.";
+TreeTop::usage="TreeTop[\!\(\*
+StyleBox[\"tree\",\nFontSlant->\"Italic\"]\)] returns a list of vertices in \!\(\*
+StyleBox[\"tree\",\nFontSlant->\"Italic\"]\) that are farthest away from the root in absolute distance.";
 
 Subtree::usage="Subtree[\!\(\*
 StyleBox[\"tree\",\nFontSlant->\"Italic\"]\), \!\(\*
@@ -138,18 +159,63 @@ StyleBox[\"tree\",\nFontSlant->\"Italic\"]\). BranchLength has attribute Listabl
 TreeDistance::usage="TreeDistance[\!\(\*
 StyleBox[\"tree\",\nFontSlant->\"Italic\"]\), \!\(\*
 StyleBox[\"a\",\nFontSlant->\"Italic\"]\), \!\(\*
-StyleBox[\"b\",\nFontSlant->\"Italic\"]\)] returns the absolute distance between vertices \!\(\*
+StyleBox[\"b\",\nFontSlant->\"Italic\"]\)] or TreeDistance[\!\(\*
+StyleBox[\"tree\",\nFontSlant->\"Italic\"]\), {\!\(\*
+StyleBox[\"a\",\nFontSlant->\"Italic\"]\), \!\(\*
+StyleBox[\"b\",\nFontSlant->\"Italic\"]\)\!\(\*
+StyleBox[\"}\",\nFontSlant->\"Italic\"]\)] returns the absolute distance between vertices \!\(\*
 StyleBox[\"a\",\nFontSlant->\"Italic\"]\) and \!\(\*
-StyleBox[\"b\",\nFontSlant->\"Italic\"]\), regardless of the direction of intermediate edges.";
+StyleBox[\"b\",\nFontSlant->\"Italic\"]\) in \!\(\*
+StyleBox[\"tree\",\nFontSlant->\"Italic\"]\), regardless of the direction of intermediate edges. TreeDistance[\!\(\*
+StyleBox[\"tree\",\nFontSlant->\"Italic\"]\), \!\(\*
+StyleBox[\"v\",\nFontSlant->\"Italic\"]\)] returns the absolute distance of vertex \!\(\*
+StyleBox[\"v\",\nFontSlant->\"Italic\"]\) from the root.";
+TreeDistanceMatrix::usage="TreeDistanceMatrix[\!\(\*
+StyleBox[\"tree\",\nFontSlant->\"Italic\"]\)\!\(\*
+StyleBox[\",\",\nFontSlant->\"Italic\"]\)\!\(\*
+StyleBox[\" \",\nFontSlant->\"Italic\"]\){\!\(\*SubscriptBox[
+StyleBox[\"v\",\nFontSlant->\"Italic\"], \(1\)]\), \!\(\*SubscriptBox[
+StyleBox[\"v\",\nFontSlant->\"Italic\"], \(2\)]\), \[Ellipsis]}] returns the absolute distances between pairs of vertices \!\(\*
+StyleBox[SubscriptBox[\"v\", \"i\"],\nFontSlant->\"Italic\"]\) in \!\(\*
+StyleBox[\"tree\",\nFontSlant->\"Italic\"]\), regardless of the direction of intermediate edges. TreeDistanceMatrix[\!\(\*
+StyleBox[\"tree\",\nFontSlant->\"Italic\"]\)] returns absolute distances of all vertex pairs in \!\(\*
+StyleBox[\"tree\",\nFontSlant->\"Italic\"]\).";
 TreePath::usage="TreePath[\!\(\*
 StyleBox[\"tree\",\nFontSlant->\"Italic\"]\), \!\(\*
 StyleBox[\"a\",\nFontSlant->\"Italic\"]\), \!\(\*
-StyleBox[\"b\",\nFontSlant->\"Italic\"]\)] returns the list of edges between vertices \!\(\*
+StyleBox[\"b\",\nFontSlant->\"Italic\"]\)] or TreePath[\!\(\*
+StyleBox[\"tree\",\nFontSlant->\"Italic\"]\), {\!\(\*
+StyleBox[\"a\",\nFontSlant->\"Italic\"]\), \!\(\*
+StyleBox[\"b\",\nFontSlant->\"Italic\"]\)\!\(\*
+StyleBox[\"}\",\nFontSlant->\"Italic\"]\)] returns the list of edges between vertices \!\(\*
 StyleBox[\"a\",\nFontSlant->\"Italic\"]\) and \!\(\*
-StyleBox[\"b\",\nFontSlant->\"Italic\"]\), regardless of the direction of intermediate edges.";
+StyleBox[\"b\",\nFontSlant->\"Italic\"]\) in \!\(\*
+StyleBox[\"tree\",\nFontSlant->\"Italic\"]\), regardless of the direction of intermediate edges. TreePath[\!\(\*
+StyleBox[\"tree\",\nFontSlant->\"Italic\"]\), \!\(\*
+StyleBox[\"v\",\nFontSlant->\"Italic\"]\)] returns the path from vertex \!\(\*
+StyleBox[\"v\",\nFontSlant->\"Italic\"]\) to the root.";
+CommonAncestor::usage="CommonAncestor[\!\(\*
+StyleBox[\"tree\",\nFontSlant->\"Italic\"]\), {\!\(\*SubscriptBox[
+StyleBox[\"v\",\nFontSlant->\"Italic\"], \(1\)]\), \!\(\*SubscriptBox[
+StyleBox[\"v\",\nFontSlant->\"Italic\"], \(2\)]\), \[Ellipsis]}] returns the closest common ancestor vertex of all vertices \!\(\*
+StyleBox[SubscriptBox[\"v\", \"i\"],\nFontSlant->\"Italic\"]\) within \!\(\*
+StyleBox[\"tree\",\nFontSlant->\"Italic\"]\). CommonAncestor[\!\(\*
+StyleBox[\"tree\",\nFontSlant->\"Italic\"]\), \!\(\*
+StyleBox[\"v\",\nFontSlant->\"Italic\"]\)] returns \!\(\*
+StyleBox[\"v\",\nFontSlant->\"Italic\"]\).";
+DivergenceTime::usage="DivergenceTime[\!\(\*
+StyleBox[\"tree\",\nFontSlant->\"Italic\"]\), {\!\(\*SubscriptBox[
+StyleBox[\"v\",\nFontSlant->\"Italic\"], \(1\)]\), \!\(\*SubscriptBox[
+StyleBox[\"v\",\nFontSlant->\"Italic\"], \(2\)]\), \[Ellipsis]}] returns the absolute distance of the root node of the smallest supertree consisting all vertices \!\(\*
+StyleBox[SubscriptBox[\"v\", \"i\"],\nFontSlant->\"Italic\"]\) from the root of \!\(\*
+StyleBox[\"tree\",\nFontSlant->\"Italic\"]\). DivergenceTime[\!\(\*
+StyleBox[\"tree\",\nFontSlant->\"Italic\"]\), \!\(\*
+StyleBox[\"v\",\nFontSlant->\"Italic\"]\)] returns the distance of vertex \!\(\*
+StyleBox[\"v\",\nFontSlant->\"Italic\"]\) from the root of \!\(\*
+StyleBox[\"tree\",\nFontSlant->\"Italic\"]\).";
 
-Cladogram::usage="Cladogram[\!\(\*
-StyleBox[\"tree\",\nFontSlant->\"Italic\"]\)] returns a cladogram graph of the Tree object \!\(\*
+
+Cladogram::usage="Cladogram[tree] returns a cladogram graph of the Tree object \!\(\*
 StyleBox[\"tree\",\nFontSlant->\"Italic\"]\). Cladogram[\!\(\*
 StyleBox[\"graph\",\nFontSlant->\"Italic\"]\)] returns a cladogram of \!\(\*
 StyleBox[\"graph\",\nFontSlant->\"Italic\"]\). Cladogram lays out vertices to appropriately show vertex distances and edge lengths (also stores them as VertexWeight and EdgeWeight, respectively). Cladogram accepts the same options as Graph, except GraphLayout, plus Orientation and LayerSizeFunction.";
@@ -165,7 +231,11 @@ TreeQ[_]:=False;
 UniqueVerticesQ[tree_Tree]:=(DeleteDuplicates@#===#)&@VertexList@tree;
 
 Tree/:VertexQ[tree_Tree,node_]:=MemberQ[VertexList@tree,node]
+NodeQ[node_Association]:=node@"Type"===Node;
+NodeQ[_]:=False;
 NodeQ[tree_Tree,node_]:=MemberQ[NodeList@tree,node];
+LeafQ[node_Association]:=node@"Type"===Leaf;
+LeafQ[_]:=False;
 LeafQ[tree_Tree,node_]:=MemberQ[LeafList@tree,node];
 
 BinaryTreeQ[tree_Tree]:=Union@Cases[tree,Tree[_,c_]:>Length@c,{0,\[Infinity]}]==={2};
@@ -179,21 +249,27 @@ DistanceIndex[tree_Tree]:=Association@@distance@tree;
 
 subnode[n_Association]:=n@"Name"->{};
 subnode[Tree[n_,c_]]:=(n@"Name"->subnode/@c);
-SubnodeIndex[tree_Tree]:=Association@@Reverse@Cases[subnode@tree,(a_->b_):>(a->Flatten@(b/.Rule->List)),{0,\[Infinity]}];
+DescendantIndex[tree_Tree]:=Association@@Reverse@Cases[subnode@tree,(a_->b_):>(a->Flatten@(b/.Rule->List)),{0,\[Infinity]}];
+
+AncestorIndex[tree_Tree]:=Module[{leafPaths=TreePath[tree,#]&/@LeafList@tree},(* NOTE: Only calculates longest paths as `leafPaths` as path finding is costly. All the rest can be deduced from longest paths. *)
+Association@@Join[{TreeRoot@tree->{}},
+(#[[-1,-1]]->DeleteDuplicates@Most@Flatten[List@@@#])&/@(Reverse/@DeleteDuplicates@Flatten[(NestList[Rest,#,Length@#-1]&/@leafPaths),1])]];
 
 ChildIndex[tree_Tree]:=Association@@Reverse@Cases[subnode@tree,(a_->b_):>(a->(First/@b)),{0,\[Infinity]}];
 
 BranchLengthIndex[tree_Tree]:=AssociationThread@@(Lookup[FullVertexList@tree,{"Name","BranchLength"}]\[Transpose]);
 
 
+(* ::Input::Initialization:: *)
 FullVertexList[tree_Tree,lvl_:{0,\[Infinity]}]:=Cases[tree,_Association,lvl];
 
-NodeList[tree_Tree,lvl_:{0,\[Infinity]}]:=Cases[tree,n_Association?(#Type==="Node"&):>n@"Name",lvl]; 
-LeafList[tree_Tree,lvl_:{0,\[Infinity]}]:=Cases[tree,n_Association?(#Type==="Leaf"&):>n@"Name",lvl];
+NodeList[tree_Tree,lvl_:{0,\[Infinity]}]:=Cases[tree,n_?NodeQ:>n@"Name",lvl]; 
+LeafList[tree_Tree,lvl_:{0,\[Infinity]}]:=Cases[tree,n_?LeafQ:>n@"Name",lvl];
 Tree/:EdgeList[tree_Tree]:=Flatten[Thread/@Normal@ChildIndex@tree];
 Tree/:VertexList[tree_Tree,lvl_:{0,\[Infinity]}]:=Lookup[FullVertexList[tree,lvl],"Name"];
 Tree/:TopologicalSort[tree_Tree]:=VertexList@tree;
 TreeRoot[tree_Tree]:=(First@tree)@"Name";
+TreeTop[tree_Tree]:=First/@MaximalBy[Normal@DistanceIndex@tree,Last];
 
 Subtree[tree_Tree]:=tree;
 Subtree[tree_Tree,node_,lvl_:{0,\[Infinity]}]:=Module[{pos,n},
@@ -201,11 +277,11 @@ pos=FirstPosition[tree,_Association?(#Name===node&),Missing["NotFound"],lvl];
 Which[
 MissingQ@pos,pos,
 pos==={1},tree,
-(n=Extract[tree,pos])@"Type"==="Leaf",Tree[n,{}],
+n=Extract[tree,pos];LeafQ@n,Tree[n,{}],
 True,Extract[tree,Drop[pos,-1]]]
 ];
 
-Supertree[tree_Tree,nodes_List]:=Module[{path=Union@(Sort/@Partition[nodes,2,1,{-1,-1},{}]),all,root},
+Supertree[tree_Tree,nodes_List]:=Module[{path=Union@(Sort/@Partition[Union@nodes,2,1,{-1,-1},{}]),all,root},
 all=Union@Flatten@(List@@@Flatten[TreePath[tree,#]&/@path]);
 root=FirstCase[TopologicalSort@tree,Alternatives@@all];
 Subtree[tree,root]
@@ -232,6 +308,18 @@ TreeDistance[tree_Tree,{a_}]:=TreeDistance[tree,a,a];
 TreeDistance[tree_Tree,a_]:=If[VertexQ[tree,a],TreeDistance[tree,a,TreeRoot@tree],\[Infinity]];
 TreeDistance[tree_Tree,a_,a_]:=If[VertexQ[tree,a],0,\[Infinity]];
 TreeDistance[tree_Tree,a_,b_]:=If[VertexQ[tree,a]&&VertexQ[tree,b],Total[(Last/@TreePath[tree,a,b])/.BranchLengthIndex@tree],\[Infinity]];
+
+TreeDistanceMatrix[tree_Tree]:=TreeDistanceMatrix[tree,VertexList@tree];
+TreeDistanceMatrix[tree_Tree,v_List]:=Module[{p,m},
+p=First/@PositionIndex@v;
+m=Outer[If[p@#1>p@#2,0,TreeDistance[tree,#1,#2]]&,v,v];
+m+m\[Transpose]];
+
+CommonAncestor[tree_Tree,nodes_List]:=TreeRoot@Supertree[tree,Union@nodes];
+CommonAncestor[tree_Tree,node_]:=node;
+
+DivergenceTime[tree_Tree,nodes_List]:=(DistanceIndex@tree)@CommonAncestor[tree,Union@nodes];
+DivergenceTime[tree_Tree,node_]:=(DistanceIndex@tree)@node;
 
 
 (* ::Input::Initialization:: *)
@@ -276,7 +364,7 @@ vl=Switch[Last@#,None,Nothing,_[_,_Placed],#,_,First@#->Placed[Last@#,dir]]&/@vl
 Graph[n,e,
 FilterRules[mergeRules[Options@Cladogram,{
 VertexWeight->x,
-VertexLabels->vl,
+VertexLabels->DeleteCases[vl,Nothing],(* NOTE: For backwards compatibility with v10, when Nothing is not defined. *)
 EdgeWeight->ew,
 EdgeLabels->Switch[el,Automatic,Placed["EdgeWeight",{3/5,{0,0}}],_,el],
 EdgeShapeFunction->(BSplineCurve[{First@#1,Total[#1[[Switch[dir,Left|Right,{1,-1},_,{-1,1}]]] {{1,0},{0,1}}],Last@#1},SplineWeights->{1,1000,1}]&),(* NOTE: From Vitaliy Kaurov: http://community.wolfram.com/groups/-/m/t/241376 *)
@@ -301,10 +389,11 @@ End[];
 
 Protect[Tree];
 Protect[TreeQ,NodeQ,UniqueVerticesQ,BinaryTreeQ];
-Protect[DistanceIndex,SubnodeIndex,ChildIndex,BranchLengthIndex];
-Protect[FullVertexList,NodeList,LeafList,TreeRoot];
+Protect[DistanceIndex,DescendantIndex,AncestorIndex,ChildIndex,BranchLengthIndex];
+Protect[FullVertexList,NodeList,LeafList,TreeRoot,TreeTop];
 Protect[Subtree,Supertree];
-Protect[BranchLength,TreeDistance,TreePath];
+Protect[BranchLength,TreeDistance,TreeDistanceMatrix,TreePath];
+Protect[CommonAncestor,DivergenceTime];
 Protect[Cladogram];
 
 EndPackage[];
