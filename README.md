@@ -19,7 +19,7 @@ The ``Phylogenetics` `` package can:
 ## Version history
 - 2016 09 08: Package initialized.
 - 2016 09 16: PUBLISHED: Version 1.0.0.
-- 2016 02 01: PUBLISHED: Version 1.1.0.
+- 2016 01 31: PUBLISHED: Version 1.1.0.
     - ADDED: `CommonAncestor`, `DivergenceTime`, `AncestorIndex`, `TreeDistanceMatrix`, `TreeTop`, `$PhylogeneticsVersionNumber`.
     - FIXED: Usage message corrections.
     - FEATURE: Straight `Cladogram` edges, branching according to angle.
